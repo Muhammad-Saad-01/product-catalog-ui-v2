@@ -1,0 +1,10 @@
+<p-multiSelect [options]="groupedFilters" [group]="true" [(ngModel)]="selectedFilters"
+    defaultLabel="Filter By Category and/or Brand" scrollHeight="250px" display="chip"
+    (onChange)="detectChanges($event)">
+    <ng-template let-group pTemplate="group">
+        <div class="flex align-items-center">
+            <i [class]="group.icon" style="width: 20px"></i>
+            <span>{{ group.label }}</span>
+        </div>
+    </ng-template>
+</p-multiSelect>

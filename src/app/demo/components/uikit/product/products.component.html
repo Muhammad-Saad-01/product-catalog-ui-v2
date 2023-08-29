@@ -1,0 +1,104 @@
+<div class="card" *ngIf="loading" style="margin:auto; text-align: center;">
+	<p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)"
+		animationDuration=".5s"></p-progressSpinner>
+</div>
+
+<div class="grid">
+	<div class="col-12">
+		<div class="card">
+			<h5>Products</h5>
+			<p-dataView #dv [value]="products" [paginator]="true" [rows]="9" filterBy="name" [sortField]="sortField"
+				[sortOrder]="sortOrder" layout="grid" [totalRecords]="totalRecords" [first]=0 [lazy]="true"
+				[rowsPerPageOptions]="[9,18,27]"
+				currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" [loading]="loading"
+				[loadingIcon]="'pi pi-spinner'" [emptyMessage]="'No products found!'" (onPage)="onPageChange($event)"
+				emptyMessage="No products found!.">
+
+				<ng-template pTemplate="header">
+					<div class="flex flex-column md:flex-row md:justify-content-between gap-2">
+						<app-select [groupedFilters]="filterGroup"
+							(selectedValue)="filteringOptions($event)"></app-select>
+
+						<span class="p-input-icon-left">
+							<i class="pi pi-search"></i>
+							<input type="search" pInputText placeholder="Search by Name" (input)="onFilter(dv, $event)">
+						</span>
+						<p-dropdown [options]="sortOptions" placeholder="Sort By Price"
+							(onChange)="onSortChange($event)"></p-dropdown>
+
+						<p-dataViewLayoutOptions></p-dataViewLayoutOptions>
+					</div>
+				</ng-template>
+
+				<ng-template let-product pTemplate="listItem">
+					<div class="col-12">
+						<div class="flex flex-column md:flex-row align-items-center p-3 w-full">
+							<img [src]="product.imageUri" [alt]="product.name"
+								class="my-4 md:my-0 w-9 md:w-10rem shadow-2 mr-5" />
+
+							<div class="flex-1 flex flex-column align-items-center text-center md:text-left">
+								<div class="font-bold text-2xl">{{product.name}}</div>
+								<div class="mb-2">{{product.description}}</div>
+								<p-rating [ngModel]="product.rating" [readonly]="true" [cancel]="false"
+									styleClass="mb-2"></p-rating>
+								<div class="flex align-items-center mt-2">
+									<i class="pi pi-tag mr-2"></i>
+									<span class="font-semibold">{{product.categoryName}}</span>
+								</div>
+							</div>
+							<div
+								class="flex flex-row md:flex-column justify-content-between w-full md:w-auto align-items-center md:align-items-end mt-5 md:mt-0">
+								<span
+									class="text-2xl font-semibold mb-2 align-self-center md:align-self-end">${{product.price}}</span>
+								<p-button icon="pi pi-eye" label="View Details" styleClass="mb-2 p-button-sm"
+									(onClick)="onEdit(product)"></p-button>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+
+				<ng-template let-product pTemplate="gridItem">
+					<div class="col-12 md:col-4 ">
+						<div class="card m-3 border-1 surface-border">
+							<div class="flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
+								<div class="flex align-items-center">
+									<i class="pi pi-tag mr-2"></i>
+									<span class="font-semibold">{{product.categoryName}}</span>
+								</div>
+								<!-- <span
+									[class]="'product-badge status-' + product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span> -->
+							</div>
+							<div class="flex flex-column align-items-center text-center mb-3">
+								<img [src]="product.imageUri" [alt]="product.name" class="w-9 shadow-2 my-3 mx-0" style="  aspect-ratio: 1/1;
+									background-color: #f6f6f6;
+									object-fit: cover;
+									border-radius: 8px; " />
+								<div class="text-2xl font-bold">{{product.name}}</div>
+								<div class="mb-3">{{product.description | truncate:100 }}</div>
+								<p-rating [ngModel]="product.rating" [readonly]="true" [cancel]="false"></p-rating>
+							</div>
+							<div class="flex align-items-center justify-content-between">
+								<span class="text-2xl font-semibold">${{product.price}}</span>
+								<!-- <p-button icon="pi pi-eye" [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+									(onClick)="display=true" label="View Details"
+									[routerLink]="['/products',product.id]"></p-button> -->
+								<p-button icon="pi pi-eye" label="View Details" styleClass="mb-2 p-button-sm"
+									[routerLink]="['/uikit/products/',product.id]">
+								</p-button>
+
+
+							</div>
+
+						</div>
+					</div>
+				</ng-template>
+
+
+
+
+			</p-dataView>
+		</div>
+	</div>
+
+
+</div>

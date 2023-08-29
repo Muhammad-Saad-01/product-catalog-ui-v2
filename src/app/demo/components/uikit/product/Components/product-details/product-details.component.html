@@ -1,0 +1,33 @@
+<div class="card">
+    <p-breadcrumb class="max-w-full mb-3 " [model]="items" [home]="home"></p-breadcrumb>
+</div>
+
+
+
+<p-card class="flex flex-column align-items-center text-center mb-3 max-w-full mb-3  ">
+    <ng-template pTemplate="header">
+        <div class="flex flex-wrap gap-2 align-items-center justify-content-center m-4">
+            <div class="text-2xl font-bold">{{product.name}}</div>
+            <div class="flex align-items-center">
+                <i class="pi pi-tag mr-2"></i>
+                <span class="font-semibold">{{product.categoryName}}</span>
+            </div>
+
+        </div>
+        <img alt="Card" [src]="product.imageUri" class="w-9 shadow-2 my-3 mx-0" style="  aspect-ratio: 1/1;
+        background-color: #f6f6f6;
+        object-fit: cover;
+        border-radius: 8px; 
+        " />
+
+    </ng-template>
+    <p>
+        {{product.description}}
+    </p>
+    <ng-template pTemplate="footer">
+        <div class="text-2xl font-semibold mb-3">${{product.price}}</div>
+
+        <p-rating [ngModel]="product.rating" [readonly]="true" [cancel]="false"></p-rating>
+
+    </ng-template>
+</p-card>

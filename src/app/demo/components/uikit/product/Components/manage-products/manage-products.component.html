@@ -1,0 +1,359 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
+                        <button pButton pRipple label="edit" icon="pi pi-pencil" class="p-button-primary mr-2"
+                            [disabled]="!selectedProducts || selectedProducts.length !== 1 "
+                            (click)="editSelectedProduct()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger mr-2"
+                            (click)="deleteSelectedProducts()"
+                            [disabled]="!selectedProducts || !selectedProducts.length"></button>
+
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="center">
+                    <app-select [groupedFilters]="filterGroup" class="mr-2"
+                        (selectedValue)="filteringOptions($event)"></app-select>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" name="importedFile[]" accept=".csv" [maxFileSize]="1000000"
+                        label="Import" chooseLabel="Import" invalidFileTypeMessageSummary="CSV files only"
+                        invalidFileSizeMessageSummary="File size too large" class="mr-2 inline-block"
+                        (onUpload)="importCSV($event)">
+
+                    </p-fileUpload>
+                    <!-- (onUpload)="importCSV($event)" (onError)="onImportError($event)"></p-fileUpload> -->
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                        (click)="dt.exportCSV()"></button>
+
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="products" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [totalRecords]="totalRecords" [first]=0 (onPage)="onPageChange($event)"
+                emptyMessage="No products found!." [loading]="loading" [sortField]="sortField" [sortOrder]="sortOrder"
+                (onSort)="onSortChange($event)"
+                [globalFilterFields]="['productCode','name','price','brandName','categoryName']" [paginator]="true"
+                [rowsPerPageOptions]="rowsPerPageOptions" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" [lazy]="true"
+                [loadingIcon]="'pi pi-spinner'" [(selection)]="selectedProducts" selectionMode="multiple"
+                [rowHover]="true" dataKey="id">
+
+
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Manage Products</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th pSortableColumn="productCode">Code <p-sortIcon field="productCode"></p-sortIcon></th>
+                        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                        <th>Image</th>
+                        <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
+                        <th pSortableColumn="categoryName">Category <p-sortIcon field="categoryName"></p-sortIcon></th>
+                        <th pSortableColumn="rating">Reviews <p-sortIcon field="rating"></p-sortIcon></th>
+                        <th pSortableColumn="brandName">Brand <p-sortIcon field="brandName"></p-sortIcon>
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-product>
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                        </td>
+                        <td style="width:7%; min-width:10rem;"><span class="p-column-title">Code</span>
+                            {{product.productCode || product.id}}
+                        </td>
+                        <td style="width:21%; min-width:10rem;">
+                            <span class="p-column-title">Name</span>
+                            {{product.name}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Image</span>
+                            <img [src]="product.imageUri" [alt]="product.name" width="100" class="shadow-4" style="  aspect-ratio: 1/1;
+									background-color: #f6f6f6;
+									object-fit: cover;
+									border-radius: 8px; " />
+                        </td>
+                        <td style="width:14%; min-width:8rem;">
+                            <span class="p-column-title">Price</span>
+                            {{product.price | currency:'USD'}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Category</span>
+                            <p-chip>
+                                <div class="p-2 font-medium">
+
+                                    {{product.categoryName}}
+                                </div>
+                            </p-chip>
+                            <!-- {{product.categoryName}} -->
+                        </td>
+                        <td style="width:14%; min-width: 10rem;"><span class="p-column-title">Rating</span>
+                            <p-rating [ngModel]="product.rating" [readonly]="true" [cancel]="false"></p-rating>
+                        </td>
+                        <td style="width:14%; min-width: 10rem;"><span class="p-column-title">Brand</span>
+                            <span [class]="'product-badge'">{{product.brandName}}</span>
+
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editProduct(product)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                                    (click)="deleteProduct(product)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="addNewProductDialog" [style]="{width: '550px'}" header="Product Details" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <!-- <img [src]="'assets/demo/images/product/' + product.imageUri" [alt]="product.imageUri" width="150"
+                    class="mt-0 mx-auto mb-5 block shadow-2" *ngIf="product.imageUri">
+                <img [src]="product.imageUri" [alt]="product.imageUri" width="150" class="mt-0 mx-auto mb-5 block shadow-2"
+                    *ngIf="product.imageUri"> -->
+                <div class="center">
+                    <p-image *ngIf="product.imageUri" [src]="product.imageUri" [alt]="product.imageUri" width="250"
+                        [preview]="true"></p-image>
+                </div>
+
+
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !product.name}" maxlength=255 />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !product.name">Name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="image">Image</label>
+                    <input type="text" pInputText id="image" [(ngModel)]="product.imageUri" required autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !product.imageUri}" />
+
+                    <!-- <p-image *ngIf="product.imageUri"
+                        src="https://primefaces.org/cdn/primeng/images/galleria/galleria1.jpg" alt="Image" width="250"
+                        [preview]="true"></p-image> -->
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="Category">Category</label>
+                        <p-dropdown [(ngModel)]="product.categoryName" inputId="category" [options]="categoriesNames"
+                            placeholder="Select" filterBy="name" [showClear]="true" placeholder="Select a Category"
+                            class="p-1">
+                            <ng-template pTemplate="selectedItem">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{product.categoryName}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{option}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                    <div class="field col">
+                        <label for="Brand">Brand</label>
+                        <p-dropdown [(ngModel)]="product.brandName" inputId="brand" [options]="brandsNames"
+                            placeholder="Select" filterBy="name" [showClear]="true" placeholder="Select a Brand"
+                            class="p-1">
+                            <ng-template pTemplate="selectedItem">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{product.brandName}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{option}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+
+
+                </div>
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="product.description" required rows="3"
+                        maxlength=255 cols="20"></textarea>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <span class="p-float-label">
+                            <p-inputNumber inputId="integeronly" [(ngModel)]="product.price" mode="currency"
+                                currency="USD" locale="en-US"> </p-inputNumber>
+                            <label htmlFor="number-input">Price</label>
+                        </span>
+
+                    </div>
+                    <div class="field col ">
+
+                        <p-toggleButton [(ngModel)]="product.active" onLabel="active" offLabel="Inactive"
+                            onIcon="'pi pi-check'" offIcon="'i pi-times'"
+                            [styleClass]="product.active ? 'background-color:green-500' : 'background-color:red-300'"
+                            [style]="{ width: 'w-full',
+                            height: 'f-full'
+                        }"></p-toggleButton>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideAddNewProductDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="saveProduct()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="editProductDialog" [style]="{width: '550px'}" header="Product Details" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <img [src]=" product.imageUri" [alt]="product.imageUri" width="150"
+                    class="mt-0 mx-auto mb-5 block shadow-2" *ngIf="product.imageUri">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !product.name}" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !product.name">Name is required.</small>
+                </div>
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="product.description" required rows="3"
+                        cols="20"></textarea>
+                </div>
+                <div class="field">
+                    <label for="image">Image</label>
+                    <input type="text" pInputText id="image" [(ngModel)]="product.imageUri" required autofocus
+                        [ngClass]="{'ng-invalid ng-dirty' : submitted && !product.imageUri}" />
+
+                </div>
+
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="Category">Category</label>
+                        <p-dropdown [(ngModel)]="product.categoryName" inputId="category" [options]="categoriesNames"
+                            placeholder="Select" filterBy="name" [showClear]="true" placeholder="Select a Category"
+                            class="p-1">
+                            <ng-template pTemplate="selectedItem">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{product.categoryName}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{option}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                    <div class="field col">
+                        <label for="Brand">Brand</label>
+                        <p-dropdown [(ngModel)]="product.brandName" inputId="brand" [options]="brandsNames"
+                            placeholder="Select" filterBy="name" [showClear]="true" placeholder="Select a Brand"
+                            class="p-1">
+                            <ng-template pTemplate="selectedItem">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{product.brandName}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <p-chip>
+                                    <div class="p-1 font-medium">
+                                        {{option}}
+                                    </div>
+                                </p-chip>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+
+
+                </div>
+
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="price">Price</label>
+                        <p-inputNumber id="price" [(ngModel)]="product.price" mode="currency" currency="USD"
+                            locale="en-US"></p-inputNumber>
+                    </div>
+                    <div class="field col">
+                        <label for="active">Active</label>
+                        <p-toggleButton [(ngModel)]="product.active" onLabel="active" offLabel="Inactive"
+                            onIcon="'pi pi-check'" offIcon="'i pi-times'"
+                            [styleClass]="product.active ? 'background-color:green-500' : 'background-color:red-300'"
+                            [style]="{ width: 'w-full',
+                            height: 'f-full'
+                        }"></p-toggleButton>
+                    </div>
+
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideEditProductDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="editSelectedProductItem()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="product">Are you sure you want to delete <b>{{product.name}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteProductsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Are you sure you want to delete selected products?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteProductsDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
