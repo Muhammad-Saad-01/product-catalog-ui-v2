@@ -315,13 +315,16 @@ export class ManageProductsComponent implements OnInit, DoCheck {
         }
     }
     editSelectedProductItem() {
+        console.log('Edit Selected Product Item');
+        console.log(this.product);
+
         this.productService.updateProduct(this.product).subscribe(
             (response) => {
                 console.log(response);
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
-                    detail: 'Product Updated',
+                    detail: `${this.product.name} has been updated`,
                     life: 3000,
                 });
                 this.products[this.findIndexById(this.product.id)] =
@@ -332,7 +335,7 @@ export class ManageProductsComponent implements OnInit, DoCheck {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: `${this.product.name} has been updated`,
+                    detail: `${this.product.name} error while updating ${error}`,
                     life: 3000,
                 });
             }

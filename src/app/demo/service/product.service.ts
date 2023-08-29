@@ -10,7 +10,10 @@ export class ProductService {
         return this.http.delete(environment.baseApiUrl + 'products/' + id);
     }
     updateProduct(product: Product) {
-        return this.http.put(environment.baseApiUrl + 'products', product);
+        return this.http.put(
+            environment.baseApiUrl + 'products/' + product.id,
+            product
+        );
     }
     constructor(private http: HttpClient) {}
 
